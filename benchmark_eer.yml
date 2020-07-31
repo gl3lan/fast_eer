@@ -1,0 +1,14 @@
+name: benchmark_eer
+channels:
+  - pytorch
+  - intel
+  - defaults
+  - conda-forge
+  - https://www.idiap.ch/software/bob/conda
+dependencies:
+  - bob.measure
+  - pytorch
+  - torchvision
+  - h5py
+  - pandas
+  - scikit-learn
