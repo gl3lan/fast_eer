@@ -9,7 +9,7 @@ __license__ = "Apache 2.0"
 import numpy as np
 
 
-def compute_eer(negative_scores, positive_scores):
+def precise_eer(negative_scores, positive_scores):
     """Linear complexity EER computation
 
     Args:
@@ -36,7 +36,7 @@ def compute_eer(negative_scores, positive_scores):
     m_count = t_count
     fa_count = 0
     eer = 100
-    far_frr_predicate = 100
+    far_frr_predicate = +np.Inf
     eer_threshold = 0
 
     last_score = -np.Inf
@@ -51,29 +51,36 @@ def compute_eer(negative_scores, positive_scores):
             m_count_increment = 0
             fa_count_increment = 0
         # target
+        candidate_predicate = abs((m_count) / t_count - fa_count / nt_count)
+        candidate_predicate = abs(score - 0.015)
         if sorted_t_nt[idx] == 1:
-            if abs((m_count) / t_count - fa_count / nt_count) <= far_frr_predicate:
-                far_frr_predicate = abs((m_count) / t_count - fa_count / nt_count)
+            if candidate_predicate <= far_frr_predicate:
+                far_frr_predicate = candidate_predicate
                 eer_threshold = score
                 eer = ((m_count) / t_count + fa_count / nt_count)/2
+                fnr = (m_count) / t_count
+                fpr = fa_count / nt_count
             else:
                 break
             m_count_increment -= 1
             jdx += 1
         # non-target
         elif sorted_t_nt[idx] == -1:
-            if abs((m_count) / t_count - fa_count / nt_count) <= far_frr_predicate:
-                far_frr_predicate = abs((m_count) / t_count - fa_count / nt_count)
+            if candidate_predicate <= far_frr_predicate:
+                far_frr_predicate = candidate_predicate
                 eer_threshold = score
                 eer = ((m_count) / t_count + fa_count / nt_count)/2
+                fnr = (m_count) / t_count
+                fpr = fa_count / nt_count
             else:
                 break
             fa_count_increment += 1
             jdx += 1
         last_score = score
+    print(fnr, fpr, eer_threshold)
     return eer
 
-def fast_eer(negatives, positives):
+def eer(negatives, positives):
     """Logarithmic complexity EER computation
 
     Args:
